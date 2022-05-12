@@ -162,8 +162,7 @@ def binMul(num1, num2):
         mantissa = mantissa[1:] + "0" * (24 - len(mantissa))
         diff = abs(int(num1[1], 2) - int(num2[1], 2))
         if (index == 0):
-            exp = bin(int(num1[1], 2) + int(num2[1], 2) - 127 +
-                      int("1", 2))[2:10]
+            exp = bin(int(num1[1], 2) + int(num2[1], 2) - 127)[2:10]
 
         elif (index != 0):
             exp = bin(int(num1[1], 2) + int(num2[1], 2) - 127 +
