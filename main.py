@@ -94,7 +94,7 @@ def binAdd(num1, num2):
     flag = 0
     print("\t" + str(num1[0]) + " " + num1[1] + " " + num1[2] + "\n+\t" +
           str(num2[0]) + " " + num2[1] + " " + num2[2])
-    print("="*42)
+    print("=" * 42)
 
     #if the exponents are different
     if (num1[1] != num2[1]):
@@ -154,38 +154,41 @@ def binMul(num1, num2):
         num1, num2 = intTo32bin(num1), intTo32bin(num2)
         print("\t" + str(num1[0]) + " " + num1[1] + " " + num1[2] + "\nX\t" +
               str(num2[0]) + " " + num2[1] + " " + num2[2])
-        print("="*42)
+        print("=" * 42)
         exp = bin(int(num1[1], 2) + int(num2[1], 2))[2:]
         num1[2], num2[2] = '1' + num1[2], '1' + num2[2]
-        mantissa = bin(int(num1[2], 2) * int(num2[2], 2))[2:25]
+        mantissa = bin(int(num1[2], 2) * int(num2[2], 2))[3:25]
         index = mantissa.index('1')
-        mantissa = mantissa[1:] + "0" * (24 - len(mantissa))
-        diff = abs(int(num1[1], 2) - int(num2[1], 2))
+        mantissa = mantissa + "0" * (23 - len(mantissa))
         if (index == 0):
             exp = bin(int(num1[1], 2) + int(num2[1], 2) - 127)[2:10]
 
         elif (index != 0):
             exp = bin(int(num1[1], 2) + int(num2[1], 2) - 127 +
                       int("1", 2))[2:10]
-            # exp = shift(exp, index, 8)
         signbit = num1[0] ^ num2[0]
         return [signbit, exp, mantissa]
 
 
 def binDiv(num1, num2):
-    num1, num2 = intTo32bin(num1), intTo32bin(num2)
-    print("\t" + str(num1[0]) + " " + num1[1] + " " + num1[2] + "\n/\t" +
-          str(num2[0]) + " " + num2[1] + " " + num2[2])
-    print("="*42)
-    exponent = bin(int(num1[1], 2) - int(num2[1], 2) + 127)[2:]
-    exponent = '0' * (8 - len(exponent)) + exponent
-    temp1 = '1' + num1[2]
-    temp2 = '1' + num2[2]
-    mantissa = int(temp1, 2) / int(temp2, 2)
-    mantissa = intTo32bin(mantissa)
-    mantissa=mantissa[2]
-    signbit = num1[0] ^ num2[0]
-    return [signbit, exponent, mantissa]
+    if (num2 == 0):
+        print("Inf Error")
+    elif (num1 == 0):
+        return intTo32bin(0.0)
+    else:
+        num1, num2 = intTo32bin(num1), intTo32bin(num2)
+        print("\t" + str(num1[0]) + " " + num1[1] + " " + num1[2] + "\n/\t" +
+              str(num2[0]) + " " + num2[1] + " " + num2[2])
+        print("=" * 42)
+        exponent = bin(int(num1[1], 2) - int(num2[1], 2) + 127)[2:]
+        exponent = '0' * (8 - len(exponent)) + exponent
+        temp1 = '1' + num1[2]
+        temp2 = '1' + num2[2]
+        mantissa = int(temp1, 2) / int(temp2, 2)
+        mantissa = intTo32bin(mantissa)
+        mantissa = mantissa[2]
+        signbit = num1[0] ^ num2[0]
+        return [signbit, exponent, mantissa]
 
 
 def bin32toInt(bin):
@@ -204,28 +207,37 @@ def bin32toInt(bin):
 
 
 if __name__ == "__main__":
-    print("Enter two numbers: ")
-    a = float(input("A= "))
-    b = float(input("B= "))
-    print(type(a), type(b))
-    print(
-        "Select an operation:\n\n1: Addition\n2: Subtraction\n3: Multiplication"
-    )
-    inp = int(input("Enter choice: "))
+    while(True):
+        print("Enter two numbers: ")
+        a = float(input("A= "))
+        b = float(input("B= "))
+        print(
+            "Select an operation:\n\n1: Addition\n2: Subtraction\n3: Multiplication\n4: Division\n5: Change numbers"
+        )
+        inp = int(input("Enter choice: "))
 
-    if (inp == 1):
-        sum = binAdd(a, b)
-        print("\t" + str(sum[0]) + " " + sum[1] + " " + sum[2])
-        print("In decimal form : ", bin32toInt(sum))
-    elif (inp == 2):
-        sum = binAdd(a, -b)
-        print("\t" + str(sum[0]) + " " + sum[1] + " " + sum[2])
-        print("In decimal form : ", bin32toInt(sum))
-    elif (inp == 3):
-        product = binMul(a, b)
-        print("\t" + str(product[0]) + " " + product[1] + " " + product[2])
-        print("In decimal form : ", bin32toInt(product))
-    elif (inp == 4):
-        quotient = binDiv(a, b)
-        print("\t" + str(quotient[0]) + " " + quotient[1] + " " + quotient[2])
-        print("In decimal form : ", bin32toInt(quotient))
+        while (inp != 5):
+            if (inp == 1):
+                sum = binAdd(a, b)
+                print("\t" + str(sum[0]) + " " + sum[1] + " " + sum[2])
+                print("In decimal form : ", bin32toInt(sum))
+            elif (inp == 2):
+                sum = binAdd(a, -b)
+                print("\t" + str(sum[0]) + " " + sum[1] + " " + sum[2])
+                print("In decimal form : ", bin32toInt(sum))
+            elif (inp == 3):
+                product = binMul(a, b)
+                print("\t" + str(product[0]) + " " + product[1] + " " + product[2])
+                print("In decimal form : ", bin32toInt(product))
+            elif (inp == 4):
+                quotient = binDiv(a, b)
+                if (b == 0):
+                    pass
+                else:
+                    print("\t" + str(quotient[0]) + " " + quotient[1] + " " +
+                        quotient[2])
+                    print("In decimal form : ", bin32toInt(quotient))
+            print(
+                "Select an operation:\n\n1: Addition\n2: Subtraction\n3: Multiplication\n4: Division\n5: Change numbers"
+            )
+            inp = int(input("Enter choice: "))
