@@ -39,7 +39,6 @@ def toBinary(num):
 
 def twoComplement(num):
     inverse = ''.join(['1' if i == '0' else '0' for i in num])
-    print(type(inverse), type(num))
     sum = str(bin(int(inverse, 2) + int("1", 2))[2:])
     sum = (len(num) - len(sum)) * "0" + sum
     return sum
@@ -81,6 +80,9 @@ def intTo32bin(n):
         exponent = '0' * (8 - len(exponent)) + exponent
         mantissa = int_str[index + 1:23] + fraction_str
         mantissa = mantissa + ('0' * (23 - len(mantissa)))
+        if (len(mantissa) > 23):
+            mantissa = bin(int(mantissa[0:23], 2) + 1)[2:]
+            mantissa = '0' * (23 - len(mantissa)) + mantissa
         return [sign_bit, exponent, mantissa]
 
 
@@ -88,12 +90,15 @@ def binAdd(num1, num2):
     num1, num2 = intTo32bin(num1), intTo32bin(num2)
     temp1 = ''
     temp2 = ''
-    print("Number 1", num1)
-    print("Number 2", num2)
+    mantissa = ''
+    flag = 0
+    print("\t" + str(num1[0]) + " " + num1[1] + " " + num1[2] + "\n+\t" +
+          str(num2[0]) + " " + num2[1] + " " + num2[2])
+    print("="*42)
+
+    #if the exponents are different
     if (num1[1] != num2[1]):
         diff = abs(int(num1[1], 2) - int(num2[1], 2))
-        flag = 0
-
         #num 1 is bigger flag 0
         if (int(num1[1], 2) > int(num2[1], 2)):
             temp2 = shift(num2, diff, 24)
@@ -104,38 +109,38 @@ def binAdd(num1, num2):
             temp1 = shift(num1, diff, 24)
             temp2 = '1' + num2[2]
             flag = 1
+    else:
+        temp1 = '1' + num1[2]
+        temp2 = '1' + num2[2]
 
     #if both numbers are positive
     if (num1[0] == 0 and num2[0] == 0):
-        print("Temp1", temp1, "\nTemp2", temp2)
         if (flag == 0):
-            sum = str(num1[0]) + " " + num1[1] + " " + str(
-                bin(int(temp1, 2) + int(temp2, 2))[3:])
-            return sum
+            mantissa = str(bin(int(temp1, 2) + int(temp2, 2))[3:26])
+            return [num1[0], num1[1], mantissa]
         else:
-            sum = str(num2[0]) + " " + num2[1] + " " + str(
-                bin(int(temp1, 2) + int(temp2, 2))[3:])
-            return sum
+            mantissa = str(bin(int(temp1, 2) + int(temp2, 2))[3:26])
+            return [num2[0], num2[1], mantissa]
 
     #if both numbers are negative
     if (num1[0] == 1 and num2[0] == 1):
-        print("Temp1", temp1, "\nTemp2", temp2)
         if (flag == 0):
-            sum = str(num1[0]) + " " + num1[1] + " " + str(
-                bin(int(temp1, 2) + int(temp2, 2))[3:])
-            return sum
+            mantissa = str(bin(int(temp1, 2) + int(temp2, 2))[3:])
+            return [num1[0], num1[1], mantissa]
         else:
-            sum = str(num2[0]) + " " + num2[1] + " " + str(
-                bin(int(temp1, 2) + int(temp2, 2))[3:])
-            return sum
+            mantissa = str(bin(int(temp1, 2) + int(temp2, 2))[3:])
+            return [num2[0], num2[1], mantissa]
 
     #if one of them are negative
     else:
         temp2 = twoComplement(temp2)
         sum = binAddCarry(temp1, temp2)
-        sum[0]=sum[0][1:]
         if sum[1] == True:
-            return str(num1[0]) + " " + num1[1] + " " + sum[0]
+            mantissa = sum[0][1:]
+            return [num1[0], num1[1], mantissa]
+        elif sum[1] == False:
+            mantissa = twoComplement(sum[0])[1:]
+            return [num1[0], num1[1], mantissa]
 
 
 def binMul(num1, num2):
@@ -149,20 +154,18 @@ def binMul(num1, num2):
         num1, num2 = intTo32bin(num1), intTo32bin(num2)
         print("\t" + str(num1[0]) + " " + num1[1] + " " + num1[2] + "\nX\t" +
               str(num2[0]) + " " + num2[1] + " " + num2[2])
+        print("="*42)
         exp = bin(int(num1[1], 2) + int(num2[1], 2))[2:]
         num1[2], num2[2] = '1' + num1[2], '1' + num2[2]
         mantissa = bin(int(num1[2], 2) * int(num2[2], 2))[2:25]
         index = mantissa.index('1')
         mantissa = mantissa[1:] + "0" * (24 - len(mantissa))
         diff = abs(int(num1[1], 2) - int(num2[1], 2))
-        print("Differece", diff)
         if (index == 0):
-            print("a")
             exp = bin(int(num1[1], 2) + int(num2[1], 2) - 127 +
                       int("1", 2))[2:10]
 
         elif (index != 0):
-            print("b")
             exp = bin(int(num1[1], 2) + int(num2[1], 2) - 127 +
                       int("1", 2))[2:10]
             # exp = shift(exp, index, 8)
@@ -170,4 +173,60 @@ def binMul(num1, num2):
         return [signbit, exp, mantissa]
 
 
-print(binAdd(-400, -10))
+def binDiv(num1, num2):
+    num1, num2 = intTo32bin(num1), intTo32bin(num2)
+    print("\t" + str(num1[0]) + " " + num1[1] + " " + num1[2] + "\n/\t" +
+          str(num2[0]) + " " + num2[1] + " " + num2[2])
+    print("="*42)
+    exponent = bin(int(num1[1], 2) - int(num2[1], 2) + 127)[2:]
+    exponent = '0' * (8 - len(exponent)) + exponent
+    temp1 = '1' + num1[2]
+    temp2 = '1' + num2[2]
+    mantissa = int(temp1, 2) / int(temp2, 2)
+    mantissa = intTo32bin(mantissa)
+    mantissa=mantissa[2]
+    signbit = num1[0] ^ num2[0]
+    return [signbit, exponent, mantissa]
+
+
+def bin32toInt(bin):
+    signbit = bin[0]
+    exponent = int(bin[1], 2) - 127
+    mantissa = bin[2]
+    mantissa_int = 0
+    power_count = -1
+
+    for i in mantissa:
+        mantissa_int += (int(i) * pow(2, power_count))
+        power_count -= 1
+    mantissa_int += 1
+    number = pow(-1, signbit) * mantissa_int * pow(2, exponent)
+    return number
+
+
+if __name__ == "__main__":
+    print("Enter two numbers: ")
+    a = float(input("A= "))
+    b = float(input("B= "))
+    print(type(a), type(b))
+    print(
+        "Select an operation:\n\n1: Addition\n2: Subtraction\n3: Multiplication"
+    )
+    inp = int(input("Enter choice: "))
+
+    if (inp == 1):
+        sum = binAdd(a, b)
+        print("\t" + str(sum[0]) + " " + sum[1] + " " + sum[2])
+        print("In decimal form : ", bin32toInt(sum))
+    elif (inp == 2):
+        sum = binAdd(a, -b)
+        print("\t" + str(sum[0]) + " " + sum[1] + " " + sum[2])
+        print("In decimal form : ", bin32toInt(sum))
+    elif (inp == 3):
+        product = binMul(a, b)
+        print("\t" + str(product[0]) + " " + product[1] + " " + product[2])
+        print("In decimal form : ", bin32toInt(product))
+    elif (inp == 4):
+        quotient = binDiv(a, b)
+        print("\t" + str(quotient[0]) + " " + quotient[1] + " " + quotient[2])
+        print("In decimal form : ", bin32toInt(quotient))
